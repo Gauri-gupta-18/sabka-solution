@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role in ['Admin', 'Super Admin'];
+    }
+    function isAuthority() {
+      return isAuthenticated() && request.auth.token.role in ['Authority', 'Admin', 'Super Admin'];
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /issues/{issueId} {
+      allow read: if true; // Public can see issues
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated(); // Citizens can upvote, authorities can update status
+      allow delete: if isAdmin();
+    }
+    
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+    
+    match /notifications/{notificationId} {
+      allow read, update: if isOwner(resource.data.userId);
+      allow create: if isAuthenticated();
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false; // Default deny
+    }
+  }
+}
