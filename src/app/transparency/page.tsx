@@ -56,9 +56,9 @@ export default function TransparencyPortal() {
           </div>
 
           <div className="grid md:grid-cols-4 gap-6">
-            <Card className="shadow-sm border-border/50">
+            <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-blue-50 rounded-xl text-blue-500">
+                <div className="p-3 bg-primary/10 rounded-xl text-primary">
                   <TrendingUp className="h-6 w-6" />
                 </div>
                 <div>
@@ -67,9 +67,9 @@ export default function TransparencyPortal() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-border/50">
+            <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-emerald-50 rounded-xl text-emerald-500">
+                <div className="p-3 bg-success/20 rounded-xl text-success">
                   <CheckCircle2 className="h-6 w-6" />
                 </div>
                 <div>
@@ -78,7 +78,7 @@ export default function TransparencyPortal() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-border/50">
+            <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="p-3 bg-amber-50 rounded-xl text-amber-500">
                   <ShieldCheck className="h-6 w-6" />
@@ -89,9 +89,9 @@ export default function TransparencyPortal() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-border/50">
+            <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-purple-50 rounded-xl text-purple-500">
+                <div className="p-3 bg-teal-50 rounded-xl text-teal-500">
                   <Clock className="h-6 w-6" />
                 </div>
                 <div>
@@ -102,8 +102,8 @@ export default function TransparencyPortal() {
             </Card>
           </div>
 
-          <Card className="shadow-sm border-border/50 overflow-hidden">
-            <CardHeader className="bg-white border-b border-border/50">
+          <Card className="shadow-sm border-border overflow-hidden">
+            <CardHeader className="bg-white border-b border-border">
               <CardTitle>Live City Map</CardTitle>
             </CardHeader>
             <CardContent className="p-0 h-[600px] relative">

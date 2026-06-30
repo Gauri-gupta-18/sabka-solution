@@ -1,86 +1,184 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, CheckCircle2, Map as MapIcon, Shield, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, Map as MapIcon, Shield, Users, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { BlurText } from "@/components/react-bits/BlurText";
+import { FadeUp } from "@/components/react-bits/FadeUp";
+import { Magnetic } from "@/components/react-bits/Magnetic";
+import { TiltCard } from "@/components/react-bits/TiltCard";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import dynamic from "next/dynamic";
 
-const container: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
+const HeroMap = dynamic(() => import("@/components/map/HeroMap"), { ssr: false });
 
-const item: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const subRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
+  const orbRef1 = useRef<HTMLDivElement>(null);
+  const orbRef2 = useRef<HTMLDivElement>(null);
+  const orbRef3 = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero entrance timeline
+      const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      heroTl
+        .from(badgeRef.current, { opacity: 0, y: 30, scale: 0.9, duration: 0.6 })
+        .from(headingRef.current, { opacity: 0, y: 50, duration: 0.8 }, "-=0.3")
+        .from(subRef.current, { opacity: 0, y: 30, duration: 0.6 }, "-=0.4")
+        .from(ctaRef.current, { opacity: 0, y: 20, duration: 0.5 }, "-=0.3");
+
+      // Floating orbs
+      gsap.to(orbRef1.current, {
+        y: -30, x: 15,
+        duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut"
+      });
+      gsap.to(orbRef2.current, {
+        y: 25, x: -20,
+        duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut"
+      });
+      gsap.to(orbRef3.current, {
+        y: -20, x: 10, scale: 1.1,
+        duration: 6, repeat: -1, yoyo: true, ease: "sine.inOut"
+      });
+
+      // Features section scroll animation
+      const featureCards = featuresRef.current?.querySelectorAll(".feature-card");
+      if (featureCards && featureCards.length > 0) {
+        gsap.fromTo(featureCards, 
+          { opacity: 0, y: 60, rotationX: 10 },
+          {
+            scrollTrigger: {
+              trigger: featuresRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+            opacity: 1,
+            y: 0,
+            rotationX: 0,
+            stagger: 0.15,
+            duration: 0.8,
+            ease: "power2.out",
+          }
+        );
+      }
+
+      // Stats counter animation is now handled by the AnimatedNumber React component
+
+      // Stats section slide in
+      gsap.from(statsRef.current, {
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+        opacity: 0,
+        y: 40,
+        duration: 0.8,
+        ease: "power2.out",
+      });
+
+      // Map mockup parallax
+      const mapMockup = document.querySelector(".map-mockup");
+      if (mapMockup) {
+        gsap.from(mapMockup, {
+          scrollTrigger: {
+            trigger: mapMockup,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+          opacity: 0,
+          x: 80,
+          rotationY: 8,
+          duration: 1,
+          ease: "power3.out",
+        });
+      }
+
+      // Final CTA
+      gsap.from(finalCtaRef.current, {
+        scrollTrigger: {
+          trigger: finalCtaRef.current,
+          start: "top 85%",
+          toggleActions: "play none none none",
+        },
+        opacity: 0,
+        y: 40,
+        scale: 0.95,
+        duration: 0.8,
+        ease: "power2.out",
+      });
+
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <>
       <Navbar />
-      <main className="flex-1 flex flex-col">
+      <main ref={heroRef} className="flex-1 flex flex-col">
         {/* Hero Section */}
         <section className="relative pt-24 pb-32 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white -z-10" />
-          
-          {/* Floating decorative elements */}
-          <motion.div 
-            animate={{ y: [0, -20, 0] }} 
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-24 left-[10%] w-24 h-24 bg-primary/5 rounded-full blur-2xl" 
-          />
-          <motion.div 
-            animate={{ y: [0, 30, 0] }} 
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-24 right-[10%] w-32 h-32 bg-secondary/5 rounded-full blur-3xl" 
-          />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#E8F7EE] via-[#F6FFF9] to-white -z-10" />
 
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={container}
-              className="max-w-4xl mx-auto flex flex-col items-center"
-            >
-              <motion.div variants={item} className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-primary text-sm font-medium">
-                <span className="flex h-2 w-2 rounded-full bg-primary" />
+          {/* Animated floating orbs — mint/emerald/teal */}
+          <div ref={orbRef1} className="absolute top-20 left-[8%] w-32 h-32 bg-gradient-to-br from-primary/15 to-emerald-200/20 rounded-full blur-2xl" />
+          <div ref={orbRef2} className="absolute bottom-20 right-[8%] w-40 h-40 bg-gradient-to-br from-teal-100/20 to-emerald-100/20 rounded-full blur-3xl" />
+          <div ref={orbRef3} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-[#E8F7EE]/40 to-emerald-50/30 rounded-full blur-3xl" />
+
+          <div className="container mx-auto px-4 text-center relative z-10">
+            <div className="max-w-4xl mx-auto flex flex-col items-center">
+              <div ref={badgeRef} className="mb-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-emerald-50 border border-primary/20 text-primary text-sm font-semibold shadow-sm">
+                <Sparkles className="h-4 w-4" />
                 Empowering Smart Communities
-              </motion.div>
-              
-              <motion.h1 variants={item} className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-8 leading-[1.1]">
+              </div>
+
+              <h1 ref={headingRef} className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-8 leading-[1.1]">
                 Your Voice. <br className="hidden md:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#00C853] to-secondary">
                   Our Community.
                 </span>{" "}
                 One Solution.
-              </motion.h1>
-              
-              <motion.p variants={item} className="text-xl text-slate-600 mb-10 max-w-2xl leading-relaxed">
+              </h1>
+
+              <p ref={subRef} className="text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
                 Report civic issues, track real-time resolutions, and build a better city together. Powered by AI and verified by citizens.
-              </motion.p>
-              
-              <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                <Link href="/report">
-                  <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all">
-                    Report an Issue
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
+              </p>
+
+              <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-6">
+                <Link href="/dashboard/report">
+                  <Magnetic intensity={0.2}>
+                    <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 transition-all duration-300">
+                      Report an Issue
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Magnetic>
                 </Link>
                 <Link href="/impact">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 border-slate-200 hover:bg-slate-50 transition-all">
-                    Explore Community
-                  </Button>
+                  <Magnetic intensity={0.2}>
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 border-border hover:bg-accent hover:border-primary/30 transition-all duration-300">
+                      Explore Community
+                    </Button>
+                  </Magnetic>
                 </Link>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -88,110 +186,113 @@ export default function Home() {
         <section className="py-24 bg-white">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">How Sabka Solution Works</h2>
-              <p className="text-lg text-slate-600">A transparent, AI-driven process from reporting to resolution.</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 flex justify-center">
+                <BlurText text="How Sabka Solution Works" delay={0.05} />
+              </h2>
+              <p className="text-lg text-muted-foreground">A transparent, AI-driven process from reporting to resolution.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div ref={featuresRef} className="grid md:grid-cols-3 gap-8">
               {[
                 {
                   icon: <Shield className="h-6 w-6 text-primary" />,
                   title: "1. AI Analysis",
-                  description: "Snap a photo and describe the issue. Our AI instantly categorizes and prioritizes your report."
+                  description: "Snap a photo and describe the issue. Our AI instantly categorizes and prioritizes your report.",
+                  gradient: "from-[#E8F7EE] to-emerald-50",
+                  border: "hover:border-primary/30",
                 },
                 {
                   icon: <Users className="h-6 w-6 text-primary" />,
                   title: "2. Community Verification",
-                  description: "Citizens verify issues to build trust, ensuring authorities focus on real problems."
+                  description: "Citizens verify issues to build trust, ensuring authorities focus on real problems.",
+                  gradient: "from-[#F0FFF7] to-teal-50",
+                  border: "hover:border-secondary/30",
                 },
                 {
                   icon: <CheckCircle2 className="h-6 w-6 text-primary" />,
                   title: "3. Swift Resolution",
-                  description: "Authorities receive organized reports, update status in real-time, and resolve issues faster."
+                  description: "Authorities receive organized reports, update status in real-time, and resolve issues faster.",
+                  gradient: "from-emerald-50 to-[#E8F7EE]",
+                  border: "hover:border-[#00C853]/30",
                 }
               ].map((feature, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.2 }}
-                  className="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover:shadow-xl hover:border-primary/20 transition-all duration-300"
-                >
-                  <div className="bg-white w-14 h-14 rounded-xl flex items-center justify-center shadow-sm mb-6">
-                    {feature.icon}
+                <TiltCard key={idx}>
+                  <div
+                    className={`feature-card bg-gradient-to-br ${feature.gradient} rounded-2xl p-8 border border-border/60 ${feature.border} hover:shadow-xl transition-all duration-300 cursor-default group h-full`}
+                  >
+                    <div className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:shadow-md group-hover:scale-110 transition-all duration-300">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{feature.description}</p>
-                </motion.div>
+                </TiltCard>
               ))}
             </div>
           </div>
         </section>
 
         {/* Live Statistics / Map Preview CTA */}
-        <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-slate-900 to-slate-900" />
+        <section className="py-24 bg-[#0A2E1B] text-white overflow-hidden relative">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-[#0A2E1B] to-[#0A2E1B]" />
           
           <div className="container mx-auto px-4 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div ref={statsRef} className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
                 <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-                  Visualizing our <br />
-                  <span className="text-primary">City's Progress</span>
+                  <FadeUp duration={0.8} delay={0.2}>
+                    Visualizing our <br />
+                    <span className="text-primary">City&apos;s Progress</span>
+                  </FadeUp>
                 </h2>
-                <p className="text-lg text-slate-300 mb-8 max-w-lg">
+                <p className="text-lg text-white/70 mb-8 max-w-lg">
                   Explore the live interactive map to see active issues, recently resolved problems, and community hotspots in your neighborhood.
                 </p>
                 
                 <div className="grid grid-cols-2 gap-6 mb-10">
                   <div>
-                    <div className="text-4xl font-extrabold text-white mb-2">14.2k+</div>
-                    <div className="text-slate-400 font-medium">Issues Resolved</div>
+                    <div className="text-4xl font-extrabold text-white mb-2">
+                      <AnimatedNumber value={14200} suffix="k+" />
+                    </div>
+                    <div className="text-white/50 font-medium">Issues Resolved</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-extrabold text-primary mb-2">98%</div>
-                    <div className="text-slate-400 font-medium">Verification Rate</div>
+                    <div className="text-4xl font-extrabold text-primary mb-2">
+                      <AnimatedNumber value={98} suffix="%" />
+                    </div>
+                    <div className="text-white/50 font-medium">Verification Rate</div>
                   </div>
                 </div>
 
-                <Link href="/map">
-                  <Button size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-white">
-                    <MapIcon className="mr-2 h-5 w-5" />
-                    Open Live Map
-                  </Button>
+                <Link href="/dashboard/map">
+                  <Magnetic intensity={0.15}>
+                    <Button size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300">
+                      <MapIcon className="mr-2 h-5 w-5" />
+                      Open Live Map
+                    </Button>
+                  </Magnetic>
                 </Link>
               </div>
 
               {/* Map Preview Mockup */}
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="relative"
-              >
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative bg-slate-800">
-                  <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/light-v10/static/12.9716,77.5946,12,0/800x600?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA')] bg-cover bg-center opacity-50" />
-                  
-                  {/* Mock Markers */}
-                  <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-red-500 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse" />
-                  <div className="absolute top-1/2 left-1/3 w-4 h-4 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                  <div className="absolute bottom-1/3 right-1/4 w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse" />
+              <div className="map-mockup relative">
+                <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative bg-[#0D3D23] isolate">
+                  <HeroMap />
                   
                   {/* Glass Card Overlay */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl">
+                  <div className="absolute bottom-6 left-6 right-6 bg-[#0A2E1B]/60 backdrop-blur-md border border-white/20 p-4 rounded-xl z-[400] pointer-events-none">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                      <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <div className="font-semibold text-white">Pothole Repaired</div>
-                        <div className="text-sm text-slate-300">Residency Road • Just now</div>
+                        <div className="text-sm text-white/60">Residency Road • Just now</div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -199,22 +300,21 @@ export default function Home() {
         {/* Call to Action */}
         <section className="py-24 bg-white text-center">
           <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="max-w-3xl mx-auto"
-            >
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to make a difference?</h2>
-              <p className="text-xl text-slate-600 mb-10">
+            <div ref={finalCtaRef} className="max-w-3xl mx-auto flex flex-col items-center">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 flex justify-center">
+                <BlurText text="Ready to make a difference?" delay={0.05} />
+              </h2>
+              <p className="text-xl text-muted-foreground mb-10">
                 Join thousands of citizens and local authorities working together to create cleaner, safer, and smarter cities.
               </p>
               <Link href="/signup">
-                <Button size="lg" className="h-14 px-10 text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                  Create Your Account
-                </Button>
+                <Magnetic intensity={0.2}>
+                  <Button size="lg" className="h-14 px-10 text-lg shadow-xl shadow-primary/25 hover:shadow-2xl transition-all duration-300">
+                    Create Your Account
+                  </Button>
+                </Magnetic>
               </Link>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>

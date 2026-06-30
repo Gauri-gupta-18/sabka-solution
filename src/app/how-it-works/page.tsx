@@ -18,7 +18,7 @@ export default function HowItWorks() {
       description: "Our AI engine automatically detects the category, severity, and checks for duplicates, ensuring efficient routing."
     },
     {
-      icon: <Users className="h-8 w-8 text-emerald-500" />,
+      icon: <Users className="h-8 w-8 text-success" />,
       title: "3. Community Verification",
       description: "Local citizens confirm the issue to build trust. Highly verified issues get prioritized automatically."
     },
@@ -28,7 +28,7 @@ export default function HowItWorks() {
       description: "The assigned department receives the verified report and begins working on a resolution."
     },
     {
-      icon: <CheckCircle className="h-8 w-8 text-blue-500" />,
+      icon: <CheckCircle className="h-8 w-8 text-primary" />,
       title: "5. Resolution & Impact",
       description: "Once resolved, you receive a notification, and you earn Trust Points for contributing to your city."
     }
@@ -58,7 +58,7 @@ export default function HowItWorks() {
                 <div className="hidden md:block absolute left-[50%] top-0 bottom-0 w-0.5 bg-slate-200 -z-10" />
                 
                 <div className={`md:w-1/2 flex ${idx % 2 === 0 ? 'md:justify-end text-left md:text-right' : 'md:order-2 text-left'}`}>
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-sm w-full">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-border max-w-sm w-full">
                     <h3 className="text-xl font-bold mb-2">{step.title}</h3>
                     <p className="text-slate-600 leading-relaxed">{step.description}</p>
                   </div>

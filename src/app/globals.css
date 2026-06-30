@@ -46,50 +46,66 @@
 }
 
 :root {
-  /* Brand Colors */
-  --background: #F8FAFC;
-  --foreground: #0F172A; /* Primary Text */
-  
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  
-  --primary: #2563EB; /* Royal Blue */
+  /* ========================================
+     Sabka Solution — Mint Green Design System
+     Inspired by Google Material 3 / Stripe / Linear
+     ======================================== */
+
+  /* Core Brand */
+  --primary: #2ECF8F;
   --primary-foreground: #FFFFFF;
-  
-  --secondary: #7C3AED; /* Purple */
+
+  /* Secondary & Accent */
+  --secondary: #3DD598;
   --secondary-foreground: #FFFFFF;
-  
-  --muted: #F1F5F9; /* Secondary Background */
-  --muted-foreground: #64748B; /* Secondary Text */
-  
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
-  
-  --success: #10B981; /* Success */
-  --warning: #F59E0B; /* Warning */
-  
-  --destructive: #EF4444; /* Danger */
+
+  /* Surfaces */
+  --background: #F6FFF9;
+  --foreground: #1E293B;
+
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #1E293B;
+
+  /* Muted / Subtle */
+  --muted: #F0FFF7;
+  --muted-foreground: #64748B;
+
+  /* Accent */
+  --accent: #E8F7EE;
+  --accent-foreground: #1E293B;
+
+  /* Semantic */
+  --success: #16A34A;
+  --warning: #F59E0B;
+
+  --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  
-  --border: #E2E8F0; /* Borders */
-  --input: #E2E8F0;
-  --ring: #2563EB;
-  
-  --radius: 1rem; /* 16px soft rounding */
-  
+
+  /* Borders & Input */
+  --border: #E8F7EE;
+  --input: #E8F7EE;
+  --ring: #2ECF8F;
+
+  /* Radius — 20px base for premium feel */
+  --radius: 1.25rem;
+
+  /* Sidebar */
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #2563EB;
+  --sidebar-foreground: #1E293B;
+  --sidebar-primary: #2ECF8F;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #2563EB;
+  --sidebar-accent: #F0FFF7;
+  --sidebar-accent-foreground: #1E293B;
+  --sidebar-border: #E8F7EE;
+  --sidebar-ring: #2ECF8F;
 }
 
+/* ========================================
+   Base Layer
+   ======================================== */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -97,4 +113,94 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better focus indicators for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ========================================
+   Utility Animations
+   ======================================== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 207, 143, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(46, 207, 143, 0.15); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@layer utilities {
+  /* Skeleton shimmer loading */
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, #F0FFF7 25%, #E8F7EE 37%, #F0FFF7 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+
+  /* Floating animation for decorative elements */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Glow pulse for CTAs */
+  .animate-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Gradient background shift */
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  /* Premium glass effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(232, 247, 238, 0.8);
+  }
+
+  /* Subtle dot grid background pattern */
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, #2ECF8F08 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* ========================================
+   Google Translate Overrides
+   ======================================== */
+.skiptranslate iframe,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+#goog-gt-tt {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+font {
+  background: transparent !important;
+  box-shadow: none !important;
 }

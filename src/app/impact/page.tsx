@@ -8,10 +8,10 @@ import { CheckCircle2, TrendingUp, Users, MapPin } from "lucide-react";
 
 export default function Impact() {
   const stats = [
-    { title: "Issues Resolved", value: "14,235", icon: <CheckCircle2 className="h-6 w-6 text-emerald-500" /> },
+    { title: "Issues Resolved", value: "14,235", icon: <CheckCircle2 className="h-6 w-6 text-success" /> },
     { title: "Citizens Involved", value: "8,942", icon: <Users className="h-6 w-6 text-primary" /> },
     { title: "Cities Covered", value: "12", icon: <MapPin className="h-6 w-6 text-secondary" /> },
-    { title: "Resolution Rate", value: "92%", icon: <TrendingUp className="h-6 w-6 text-blue-500" /> },
+    { title: "Resolution Rate", value: "92%", icon: <TrendingUp className="h-6 w-6 text-primary" /> },
   ];
 
   return (

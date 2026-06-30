@@ -45,7 +45,7 @@ export default function Analytics() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4 shadow-sm border-border/50">
+        <Card className="lg:col-span-4 shadow-sm border-border hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle>Resolution Trends</CardTitle>
             <CardDescription>Issues reported vs resolved over the last 6 months</CardDescription>
@@ -66,7 +66,7 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3 shadow-sm border-border/50">
+        <Card className="lg:col-span-3 shadow-sm border-border hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle>Category Breakdown</CardTitle>
             <CardDescription>Distribution of issues by department</CardDescription>
@@ -103,7 +103,7 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3 shadow-sm border-border/50 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+        <Card className="lg:col-span-3 shadow-sm border-primary/20 bg-gradient-to-br from-primary/10 to-emerald-50 hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-primary">
               <Brain className="h-5 w-5" />
@@ -114,7 +114,7 @@ export default function Analytics() {
             <div className="space-y-6">
               <div>
                 <h4 className="font-semibold text-slate-900 flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  <TrendingUp className="h-4 w-4 text-success" />
                   Upcoming Surge Prediction
                 </h4>
                 <p className="text-sm text-slate-600">

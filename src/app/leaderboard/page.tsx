@@ -29,8 +29,8 @@ export default function Leaderboard() {
             <p className="text-lg text-slate-600">Recognizing the most active contributors in our community.</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-6 bg-slate-50 border-b border-slate-100 grid grid-cols-12 gap-4 text-sm font-semibold text-slate-500 uppercase tracking-wider">
+          <div className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
+            <div className="p-6 bg-slate-50 border-b border-border grid grid-cols-12 gap-4 text-sm font-semibold text-slate-500 uppercase tracking-wider">
               <div className="col-span-2 md:col-span-1 text-center">Rank</div>
               <div className="col-span-6 md:col-span-5">Citizen</div>
               <div className="hidden md:block col-span-3 text-center">Badge</div>
@@ -65,7 +65,7 @@ export default function Leaderboard() {
                     </div>
                   </div>
                   <div className="hidden md:flex col-span-3 items-center justify-center">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-primary border border-blue-100">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
                       <Award size={14} />
                       {leader.badge}
                     </span>

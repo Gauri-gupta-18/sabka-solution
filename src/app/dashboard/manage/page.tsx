@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Filter, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { BlurText } from "@/components/react-bits/BlurText";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
 export default function ManageIssues() {
   const { user } = useAuth();
@@ -69,7 +71,9 @@ export default function ManageIssues() {
     <div className="space-y-6">
       <div className="flex justify-between items-end mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Manage Issues</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            <BlurText text="Manage Issues" delay={0.05} />
+          </h1>
           <p className="text-muted-foreground mt-1">
             Review, assign, and update civic issues reported by citizens.
           </p>
@@ -97,69 +101,71 @@ export default function ManageIssues() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
           >
-            <Card className="shadow-sm border-border/50 hover:shadow-md transition-shadow">
-              <CardContent className="p-6 flex flex-col lg:flex-row justify-between items-start gap-6">
-                <div className="space-y-3 flex-1 w-full">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={issue.status === 'Resolved' ? 'secondary' : 'default'} className="uppercase text-[10px] px-2">
-                      {issue.status}
-                    </Badge>
-                    <Badge variant="outline" className="border-border uppercase text-[10px] px-2 text-slate-500">
-                      {issue.category}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-slate-500 ml-2">
-                      <ShieldAlert className={`w-3.5 h-3.5 ${
-                        issue.priority === 'Critical' ? 'text-destructive' :
-                        issue.priority === 'High' ? 'text-amber-500' :
-                        issue.priority === 'Medium' ? 'text-blue-500' : 'text-emerald-500'
-                      }`} />
-                      {issue.priority} Priority
+            <SpotlightCard className="shadow-sm border-border hover:shadow-md transition-shadow" spotlightColor="rgba(0,0,0,0.03)">
+              <Card className="border-none bg-transparent shadow-none">
+                <CardContent className="p-6 flex flex-col lg:flex-row justify-between items-start gap-6">
+                  <div className="space-y-3 flex-1 w-full">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant={issue.status === 'Resolved' ? 'secondary' : 'default'} className="uppercase text-[10px] px-2">
+                        {issue.status}
+                      </Badge>
+                      <Badge variant="outline" className="border-border uppercase text-[10px] px-2 text-slate-500">
+                        {issue.category}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-slate-500 ml-2">
+                        <ShieldAlert className={`w-3.5 h-3.5 ${
+                          issue.priority === 'Critical' ? 'text-destructive' :
+                          issue.priority === 'High' ? 'text-amber-500' :
+                          issue.priority === 'Medium' ? 'text-primary' : 'text-secondary'
+                        }`} />
+                        {issue.priority} Priority
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">{issue.title}</h3>
+                      <p className="text-sm text-slate-600 mt-1 line-clamp-2 max-w-3xl">{issue.description}</p>
+                      <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span className="truncate max-w-[300px]">{issue.location.address}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {issue.createdAt && typeof (issue.createdAt as any).toDate === 'function' ? (issue.createdAt as any).toDate().toLocaleDateString() : 'Recent'}
+                        </span>
+                        <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 font-medium text-xs">
+                          {issue.verificationCount} Verifications
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">{issue.title}</h3>
-                    <p className="text-sm text-slate-600 mt-1 line-clamp-2 max-w-3xl">{issue.description}</p>
-                    <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span className="truncate max-w-[300px]">{issue.location.address}</span>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {issue.createdAt?.toDate ? issue.createdAt.toDate().toLocaleDateString() : 'Recent'}
-                      </span>
-                      <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 font-medium text-xs">
-                        {issue.verificationCount} Verifications
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0">
-                  {issue.status !== 'Resolved' && (
-                    <Button 
-                      onClick={() => updateStatus(issue.id, 'Resolved')}
-                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
-                    >
-                      <CheckCircle2 className="w-4 h-4 mr-2" /> Mark Resolved
+                  <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0 relative z-20">
+                    {issue.status !== 'Resolved' && (
+                      <Button 
+                        onClick={() => updateStatus(issue.id, 'Resolved')}
+                        className="w-full bg-success hover:bg-success/90 text-white"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" /> Mark Resolved
+                      </Button>
+                    )}
+                    {issue.status === 'Pending' && (
+                      <Button 
+                        variant="outline"
+                        onClick={() => updateStatus(issue.id, 'In Progress')}
+                        className="w-full bg-white"
+                      >
+                        Start Progress
+                      </Button>
+                    )}
+                    <Button variant="ghost" className="w-full text-primary hover:text-primary hover:bg-primary/5 bg-white/50">
+                      View Details
                     </Button>
-                  )}
-                  {issue.status === 'Pending' && (
-                    <Button 
-                      variant="outline"
-                      onClick={() => updateStatus(issue.id, 'In Progress')}
-                      className="w-full"
-                    >
-                      Start Progress
-                    </Button>
-                  )}
-                  <Button variant="ghost" className="w-full text-primary hover:text-primary hover:bg-primary/5">
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </SpotlightCard>
           </motion.div>
         ))}
 

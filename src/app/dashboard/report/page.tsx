@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, MapPin, Brain, ShieldAlert, CheckCircle2, Loader2 } from "lucide-react";
+import { Upload, MapPin, Brain, ShieldAlert, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { analyzeIssueDescription, AIAnalysisResult } from "@/services/ai";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/firebase/config";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+
+// Dynamically import MapPicker to prevent SSR issues with Leaflet
+const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
 
 export default function ReportIssue() {
   const { user } = useAuth();
@@ -20,9 +25,76 @@ export default function ReportIssue() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
+  const [coordinates, setCoordinates] = useState<{lat: number, lng: number} | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const fetchAddressFromCoords = useCallback(async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        setAddress(data.display_name);
+      }
+    } catch (error) {
+      console.error("Geocoding failed", error);
+    }
+  }, []);
+
+  const handleAddressBlur = async () => {
+    if (!address) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        setCoordinates({ lat, lng });
+      }
+    } catch (error) {
+      console.error("Geocoding address failed", error);
+    }
+  };
+
+  const handleGetCurrentLocation = () => {
+    if ("geolocation" in navigator) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCoordinates({ lat, lng });
+          fetchAddressFromCoords(lat, lng);
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error("Error getting location", error);
+          alert("Could not access your location. Please check your browser permissions.");
+          setIsLocating(false);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser");
+    }
+  };
+
+  const handleMapLocationSelect = useCallback((lat: number, lng: number) => {
+    setCoordinates({ lat, lng });
+    fetchAddressFromCoords(lat, lng);
+  }, [fetchAddressFromCoords]);
 
   const handleAnalyze = async () => {
     if (!description || description.length < 10) return;
@@ -37,14 +109,22 @@ export default function ReportIssue() {
     if (!user || !analysisResult) return;
 
     setIsSubmitting(true);
+    setSubmitError("");
     try {
+      let imageUrl = "";
+      if (imageFile) {
+        const imageRef = ref(storage, `issues/${Date.now()}_${imageFile.name}`);
+        const snapshot = await uploadBytes(imageRef, imageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+      }
+
       await addDoc(collection(db, "issues"), {
         title,
         description,
         location: {
-          address,
-          lat: 12.9716, // Mock coords
-          lng: 77.5946, // Mock coords
+          address: address || "Location not specified",
+          lat: coordinates?.lat ?? 28.6139,
+          lng: coordinates?.lng ?? 77.2090,
         },
         category: analysisResult.category,
         priority: analysisResult.severity,
@@ -55,15 +135,17 @@ export default function ReportIssue() {
           confidence: analysisResult.confidence,
           duplicateCheck: false,
         },
-        images: [],
+        images: imageUrl ? [imageUrl] : [],
         verificationCount: 0,
+        verifiedBy: [],
         reportedBy: user.id,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
       router.push("/dashboard/my-reports");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to submit issue", error);
+      setSubmitError("Failed to submit your report. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -80,7 +162,7 @@ export default function ReportIssue() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <Card className="shadow-sm border-border/50">
+          <Card className="shadow-sm border-border hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle>Issue Details</CardTitle>
               <CardDescription>Provide as much detail as possible to help authorities resolve it quickly.</CardDescription>
@@ -98,19 +180,39 @@ export default function ReportIssue() {
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="location">Official Location</Label>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleGetCurrentLocation}
+                      disabled={isLocating}
+                      className="h-8 text-xs bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
+                    >
+                      {isLocating ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <MapPin className="w-3 h-3 mr-1" />}
+                      Use My Current Location
+                    </Button>
+                  </div>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="location" 
-                      placeholder="Enter street address or landmark" 
+                      placeholder="Type official address or pick on map..." 
                       className="pl-9"
                       required 
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      onBlur={handleAddressBlur}
                     />
                   </div>
+                  <div className="h-[200px] w-full rounded-md overflow-hidden border border-border">
+                    <MapPicker onLocationSelect={handleMapLocationSelect} initialPosition={coordinates} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You can type the address directly, click "Use My Current Location", or drop a pin on the map to get official coordinates.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -120,12 +222,17 @@ export default function ReportIssue() {
                       type="button" 
                       variant="ghost" 
                       size="sm" 
-                      className="h-8 text-primary"
+                      className="h-8 text-primary group relative"
                       onClick={handleAnalyze}
                       disabled={isAnalyzing || description.length < 10}
                     >
                       {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
                       {isAnalyzing ? "Analyzing..." : "AI Auto-Analyze"}
+                      
+                      {/* Tooltip-like explanation */}
+                      <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                        Our AI helps authorities route this faster!
+                      </span>
                     </Button>
                   </div>
                   <Textarea 
@@ -146,15 +253,42 @@ export default function ReportIssue() {
 
                 <div className="space-y-2">
                   <Label>Photo Evidence (Optional)</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:bg-slate-50 transition-colors cursor-pointer flex flex-col items-center justify-center">
-                    <Upload className="h-8 w-8 text-muted-foreground mb-4" />
-                    <p className="text-sm font-medium text-slate-700">Click to upload or drag and drop</p>
-                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG or MP4 (max. 10MB)</p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Attaching a clear photo helps other citizens verify your report and allows authorities to prepare the right equipment before arriving.
+                  </p>
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:bg-slate-50 transition-colors relative flex flex-col items-center justify-center">
+                    <input 
+                      type="file" 
+                      accept="image/*,video/mp4" 
+                      onChange={handleImageChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    {previewUrl ? (
+                      <div className="relative w-full max-h-48 overflow-hidden rounded-md flex items-center justify-center">
+                        <img src={previewUrl} alt="Preview" className="max-h-48 object-contain" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                          <p className="text-white text-sm font-medium">Click to change</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 text-muted-foreground mb-4" />
+                        <p className="text-sm font-medium text-slate-700">Click to upload or drag and drop</p>
+                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG or MP4 (max. 10MB)</p>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={!analysisResult || isSubmitting}>
-                  {isSubmitting ? "Submitting..." : analysisResult ? "Submit Issue" : "Analyze first to submit"}
+                {submitError && (
+                  <p className="text-sm text-destructive font-medium bg-destructive/5 px-3 py-2 rounded-md border border-destructive/20">
+                    {submitError}
+                  </p>
+                )}
+                <Button type="submit" className="w-full h-11" disabled={!analysisResult || isSubmitting}>
+                  {isSubmitting ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</>
+                  ) : analysisResult ? "Submit Issue" : "Analyze first to submit"}
                 </Button>
               </form>
             </CardContent>
@@ -162,8 +296,8 @@ export default function ReportIssue() {
         </div>
 
         <div>
-          <Card className="shadow-sm border-border/50 sticky top-24">
-            <CardHeader className="bg-slate-50 border-b border-border/50 rounded-t-lg">
+          <Card className="shadow-sm border-border hover:shadow-md transition-shadow sticky top-24">
+            <CardHeader className="bg-slate-50 border-b border-border rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Brain className="h-5 w-5 text-primary" />
                 AI Analysis
@@ -204,7 +338,7 @@ export default function ReportIssue() {
                         <ShieldAlert className={`h-4 w-4 ${
                           analysisResult.severity === 'Critical' ? 'text-destructive' :
                           analysisResult.severity === 'High' ? 'text-amber-500' :
-                          analysisResult.severity === 'Medium' ? 'text-blue-500' : 'text-emerald-500'
+                          analysisResult.severity === 'Medium' ? 'text-primary' : 'text-secondary'
                         }`} />
                         <span className="font-semibold text-slate-900">{analysisResult.severity}</span>
                       </div>
@@ -223,9 +357,9 @@ export default function ReportIssue() {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-                      <p className="text-xs text-blue-800">
-                        <strong>AI Reasoning:</strong> {analysisResult.reasoning}
+                    <div className="bg-primary/10 p-3 rounded-xl border border-primary/20">
+                      <p className="text-xs text-primary font-medium">
+                        <strong className="font-bold">AI Reasoning:</strong> {analysisResult.reasoning}
                       </p>
                     </div>
                   </motion.div>

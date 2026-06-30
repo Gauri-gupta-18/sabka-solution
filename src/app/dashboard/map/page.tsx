@@ -37,27 +37,7 @@ export default function DashboardMap() {
       } catch (error) {
         console.error("Error fetching issues for map:", error);
         
-        // Mock data for demonstration if Firebase fails
-        setIssues([
-          {
-            id: "1", title: "Pothole on Main St", description: "Large pothole causing traffic.",
-            category: "Roads", location: { lat: 12.9716, lng: 77.5946, address: "Main St" },
-            priority: "High", status: "Pending", aiAnalysis: { category: "Roads", severity: "High", confidence: 95, duplicateCheck: false },
-            images: [], verificationCount: 5, reportedBy: "user1", createdAt: new Date(), updatedAt: new Date()
-          },
-          {
-            id: "2", title: "Garbage pile", description: "Uncollected garbage for 3 days.",
-            category: "Sanitation", location: { lat: 12.9816, lng: 77.5846, address: "2nd Ave" },
-            priority: "Medium", status: "In Progress", aiAnalysis: { category: "Sanitation", severity: "Medium", confidence: 85, duplicateCheck: false },
-            images: [], verificationCount: 12, reportedBy: "user2", createdAt: new Date(), updatedAt: new Date()
-          },
-          {
-            id: "3", title: "Broken Streetlight", description: "Streetlight is out completely.",
-            category: "Electricity", location: { lat: 12.9616, lng: 77.6046, address: "Park Road" },
-            priority: "Low", status: "Resolved", aiAnalysis: { category: "Electricity", severity: "Low", confidence: 90, duplicateCheck: false },
-            images: [], verificationCount: 2, reportedBy: "user3", createdAt: new Date(), updatedAt: new Date()
-          }
-        ]);
+        // Removed mock data fallback so only real issues show up.
       } finally {
         setLoading(false);
       }
@@ -113,10 +93,10 @@ export default function DashboardMap() {
                   <div className="w-3 h-3 rounded-full bg-amber-500"></div> High
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div> Medium
+                  <div className="w-3 h-3 rounded-full bg-primary"></div> Medium
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div> Low
+                  <div className="w-3 h-3 rounded-full bg-success"></div> Low
                 </div>
               </div>
             </CardContent>

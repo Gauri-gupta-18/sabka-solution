@@ -1,4 +1,5 @@
 export type Role = 'Citizen' | 'Moderator' | 'Authority' | 'Admin' | 'Super Admin';
+export type FirestoreTimestamp = { seconds: number; nanoseconds: number; toDate?: () => Date } | Date;
 
 export interface User {
   id: string;
@@ -9,8 +10,8 @@ export interface User {
   trustScore: number;
   citizenRank: string;
   departmentId?: string; // For Authorities
-  createdAt: any;
-  updatedAt: any;
+  createdAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp;
 }
 
 export type IssueStatus = 'Pending' | 'Verified' | 'Under Review' | 'Assigned' | 'In Progress' | 'Resolved' | 'Rejected';
@@ -37,10 +38,11 @@ export interface Issue {
     duplicateCheck: boolean;
   };
   verificationCount: number;
+  verifiedBy: string[]; // Array of User IDs who verified this
   reportedBy: string; // User ID
   assignedTo?: string; // Department ID
-  createdAt: any;
-  updatedAt: any;
+  createdAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp;
 }
 
 export interface Comment {
@@ -49,7 +51,7 @@ export interface Comment {
   userId: string;
   content: string;
   images?: string[];
-  createdAt: any;
+  createdAt: FirestoreTimestamp;
 }
 
 export interface Verification {
@@ -58,5 +60,5 @@ export interface Verification {
   userId: string;
   status: 'Confirmed' | 'Rejected';
   evidence?: string[];
-  createdAt: any;
+  createdAt: FirestoreTimestamp;
 }

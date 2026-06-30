@@ -42,7 +42,7 @@ export default function About() {
                 viewport={{ once: true }}
                 className="text-center"
               >
-                <div className="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary">
+                <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary">
                   <Target size={32} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
@@ -58,7 +58,7 @@ export default function About() {
                 transition={{ delay: 0.1 }}
                 className="text-center"
               >
-                <div className="bg-purple-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-secondary">
+                <div className="bg-secondary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-secondary">
                   <Users size={32} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Community First</h3>
@@ -74,7 +74,7 @@ export default function About() {
                 transition={{ delay: 0.2 }}
                 className="text-center"
               >
-                <div className="bg-emerald-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-500">
+                <div className="bg-emerald-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-600">
                   <Heart size={32} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Our Vision</h3>
@@ -82,6 +82,25 @@ export default function About() {
                   A future where urban problems are identified instantly and resolved seamlessly, making cities better places to live for everyone.
                 </p>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Us */}
+        <section className="py-16 bg-slate-50 border-t border-border">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-6">Contact Us</h2>
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-border inline-block text-left">
+                <p className="text-lg text-slate-700 font-medium mb-2">Founder & Lead Developer</p>
+                <h3 className="text-2xl font-bold text-primary mb-4">Gauri Gupta</h3>
+                <div className="flex items-center gap-3 text-slate-600">
+                  <span className="font-semibold text-slate-800">Email:</span>
+                  <a href="mailto:gaurigupta.works@gmail.com" className="hover:text-primary transition-colors">
+                    gaurigupta.works@gmail.com
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
